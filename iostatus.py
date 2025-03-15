@@ -16,9 +16,10 @@ def check_status_with_playwright(url, status_message):
             body = page.content()
 
             if status_message.lower() in body.lower():
+                print(f"{status_message} found in this page: {url}")
                 return None  # Skip URLs with the status message in the body
 
-            return url
+            return url  # Return the URL to be written to the file if it doesn't have the status message
 
     except Exception as e:
         print(f"Error with {url}: {e}")
