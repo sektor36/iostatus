@@ -1,9 +1,3 @@
-Sure! Here’s an updated version of the `README.md` file to reflect the changes where the tool now searches for a **status message** (`-sm`) instead of a status code (`-sc`).
-
----
-
-# iostatus.py
-
 `iostatus.py` is a tool designed to help web security researchers and bug bounty hunters identify pages with specific status messages in the body of the page content. It is especially useful for filtering out **false positives** when using tools like Feroxbuster, where pages may return a `200 OK` status with a custom error message (e.g., `"404 Not Found"`) in the body, misleading you into thinking the directory exists.
 
 ### Why was this tool created?
@@ -93,6 +87,3 @@ Many web directories and pages may return `200 OK` HTTP status codes, even thoug
 
 This tool is released under the MIT License. See `LICENSE` for more details.
 
----
-
-Let me know if you need any further adjustments or additional information in the `README.md`!
