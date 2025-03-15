@@ -1,139 +1,98 @@
-# iostatus
-Status Code URL Checker Tool
-Certainly! Here's the updated README that includes an explanation of why the tool was created, addressing the issue with false positives from **Feroxbuster** due to custom 404 pages:
+Sure! Here’s an updated version of the `README.md` file to reflect the changes where the tool now searches for a **status message** (`-sm`) instead of a status code (`-sc`).
 
 ---
 
-# **Status Code URL Checker Tool**
+# iostatus.py
 
-## Overview
+`iostatus.py` is a tool designed to help web security researchers and bug bounty hunters identify pages with specific status messages in the body of the page content. It is especially useful for filtering out **false positives** when using tools like Feroxbuster, where pages may return a `200 OK` status with a custom error message (e.g., `"404 Not Found"`) in the body, misleading you into thinking the directory exists.
 
-The **Status Code URL Checker** tool was created to address the issue of false positives encountered when using **Feroxbuster** or similar web directory discovery tools, particularly when the target website has custom 404 pages.
+### Why was this tool created?
 
-### The Problem
-
-While performing directory and file discovery with tools like **Feroxbuster**, many security researchers and bug bounty hunters encounter false positives when the target website returns a `200 OK` response with a **custom 404 page** inside the body of the response. This typically happens when the server doesn't return an actual `404 Not Found` status code, but instead serves a `200 OK` response with a custom page that includes a "404 Not Found" message within its HTML content.
-
-This discrepancy can lead to inaccurate findings, as the target website technically returns a successful HTTP response (`200 OK`), but the content clearly indicates the resource is missing.
-
-### The Solution
-
-The **Status Code URL Checker** tool was created to help solve this problem. By checking the **status code** as well as inspecting the **body** of the page, it filters out false positives caused by custom 404 pages. The tool works by allowing you to:
-- Extract URLs from a file or piped input.
-- Check each URL for a specified status code (e.g., `404`).
-- Inspect the page content to ensure the body doesn't contain misleading status code information (e.g., "404" displayed in the page but the status code is `200`).
-- Output valid URLs that match the desired criteria (status code different from the specified one).
+This tool was created because many web applications have custom 404 error pages. These error pages can return a `200 OK` HTTP status code, but the body of the page contains a message such as `"404 Not Found"` or `"Page not found"`. In cases like this, it's important to find a way to accurately detect those pages based on the message within the body content, rather than relying solely on the status code.
 
 ## Features
 
-- Extract URLs from files or stdin.
-- Check each URL for a specified status code.
-- Filter URLs based on the specified status code (e.g., `404`).
-- Supports multithreading for faster execution.
-- Output results with detailed status code and body content.
+- **Search for status messages in page content**: Specify a string to search for within the body of the page (e.g., "404 Not Found").
+- **Concurrency with threads**: Supports multi-threaded processing to quickly check a list of URLs.
+- **Flexible output**: Write the URLs that match the specified status message to an output file.
+- **Works with URLs from files or pipes**: Can take input URLs from a file or stdin.
+
+---
 
 ## Installation
 
-Before using this tool, ensure that **Playwright** is installed. If it's not already installed, you can run the following commands:
+Before using this script, ensure that you have the following dependencies installed:
+
+1. **Python 3.7+**
+2. **Playwright** (Install via `pip`):
 
 ```bash
 pip install playwright
 python -m playwright install
 ```
 
-This will install the required dependencies and download the necessary browser binaries.
+---
 
 ## Usage
 
-### Syntax
+### Command Syntax
 
 ```bash
-python iostatus.py -sc <status_code> -o <output_file> -t <number_of_threads>
+python iostatus.py -sm "status message" -o output_file -t threads
 ```
 
-- **`-sc`**: The HTTP status code to filter for (e.g., `404`, `500`).
-- **`-o`**: The output file to save valid URLs.
-- **`-t`**: The number of threads to use for concurrent processing (default is 10).
-
-### Example
-
-Let’s say you have a file named `urls.txt` that contains a list of URLs. You can use the following command to check each URL for status code `404` and output the valid URLs to `results.txt`:
-
-```bash
-cat urls.txt | grep example.com | sort -u | python iostatus.py -sc 404 -o results.txt -t 20
-```
-
-In this example:
-- **`cat urls.txt`**: This command outputs the list of URLs from `urls.txt`.
-- **`grep example.com`**: This filters the URLs for those that contain `example.com`.
-- **`sort -u`**: This removes duplicate URLs.
-- **`python iostatus.py -sc 404 -o results.txt -t 20`**: This command runs the script to check the filtered URLs for status code `404`, using 20 threads, and saves the results to `results.txt`.
-
-### Example from a File
-
-1. Create a text file (`urls.txt`) containing URLs, e.g.:
-
-   ```
-   https://example.com/page1
-   https://example.com/page2
-   https://example.com/page3
-   ```
-
-2. Run the following command to check for status code `404`:
-
-   ```bash
-   python iostatus.py -sc 404 -o results.txt -t 10
-   ```
-
-This will output all URLs from `urls.txt` that return a status code other than `404` to the `results.txt` file.
-
-## Example Output
-
-The output in the `results.txt` file will look like this:
-
-```
-URL: https://example.com/page1
-Status Code: 200
-Body:
-<html>...</html>
-
-URL: https://example.com/page2
-Status Code: 500
-Body:
-<html>...</html>
-
-URL: https://example.com/page3
-Status Code: 403
-Body:
-<html>...</html>
-```
-
-## Requirements
-
-- Python 3.x
-- Playwright
-- Requests
-- Argparse
-
-## Why Was This Tool Created?
-
-This tool was specifically created to address the **false positive issue** encountered when using **Feroxbuster** or similar directory discovery tools. Many websites have custom **404 pages** that return a `200 OK` status, despite the page content indicating that the resource is missing.
-
-By using this tool, you can:
-- Accurately filter out false positives based on status code and page content.
-- Ensure that URLs with valid status codes (and not custom error pages) are included in your results.
-- Save time and effort during security assessments, bug bounty hunting, or penetration testing.
-
-## Contributing
-
-If you'd like to contribute to the development of this tool, feel free to fork the repository, submit issues, or open pull requests. Contributions are welcome!
-
-## License
-
-This tool is licensed under the MIT License. See the LICENSE file for more information.
+- `-sm` (Required): The status message to search for in the body of the page (e.g., `"404 Not Found"`, `"Page not found"`, etc.).
+- `-o` (Required): The output file where URLs with matching status messages will be saved.
+- `-t` (Optional): The number of threads to use for concurrent processing (default is 10).
 
 ---
 
-This updated README explains the problem the tool addresses (false positives from **Feroxbuster**) and highlights how the tool helps resolve this issue by inspecting both status codes and page content.
+### Example Usage
 
-Let me know if you'd like further changes or additions!
+To search for URLs that contain the message `"404 Not Found"` in the body and save them to `results.txt`, run the following command:
+
+```bash
+cat target-urls.txt | python iostatus.py -sm "404 Not Found" -o results.txt -t 10
+```
+
+- **`target-urls.txt`**: A text file containing a list of URLs to check.
+- **`-sm "404 Not Found"`**: Look for the message `"404 Not Found"` in the body of the page.
+- **`-o results.txt`**: Save the matching URLs to `results.txt`.
+- **`-t 10`**: Use 10 concurrent threads to speed up the process.
+
+### Example Output in `results.txt`
+
+```
+URL: https://example.com/some-page
+Body:
+Page not found. The page you are looking for might have been removed or is temporarily unavailable.
+
+URL: https://example.com/another-page
+Body:
+404 Not Found
+The page you requested could not be found.
+```
+
+---
+
+## How It Works
+
+1. **Extract URLs**: The script takes input URLs from a file or stdin.
+2. **Search for Status Message**: It loads each page using Playwright and searches for the status message you specify in the body content.
+3. **Filter and Output**: If the status message is found in the page's body, the URL and the body content are saved to the output file.
+
+---
+
+## Why Use This Tool?
+
+Many web directories and pages may return `200 OK` HTTP status codes, even though the content on the page indicates an error (such as a `404 Not Found` page). This tool allows you to filter out such pages by specifying a status message string to search for, ensuring that only relevant URLs are returned.
+
+---
+
+## License
+
+This tool is released under the MIT License. See `LICENSE` for more details.
+
+---
+
+Let me know if you need any further adjustments or additional information in the `README.md`!
