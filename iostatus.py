@@ -14,9 +14,12 @@ def check_status_with_playwright(url, status_message):
             page = browser.new_page()
             page.goto(url)
             body = page.content()
-            if status_message in body:
-                return None  # Skip URLs with the specified status message
-            return url  # Return the URL if it doesn't match the status message
+
+            if status_message.lower() in body.lower():
+                return None  # Skip URLs with the status message in the body
+
+            return url
+
     except Exception as e:
         print(f"Error with {url}: {e}")
         return None
@@ -26,10 +29,10 @@ def extract_urls(input_data):
     return re.findall(url_pattern, input_data)
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract URLs and filter out those with the specified status message in the body.")
-    parser.add_argument('-sm', '--status_message', type=str, required=True, help="The status message to search for in the body (e.g., '404 Not Found')")
-    parser.add_argument('-o', '--output', type=str, required=True, help="Output file to write valid URLs")
-    parser.add_argument('-t', '--threads', type=int, default=10, help="Number of threads to use for concurrent processing")
+    parser = argparse.ArgumentParser(description="Check URLs for a specified status message in the body of the page.")
+    parser.add_argument('-sm', '--status_message', type=str, required=True, help="The status message to search for in the page body.")
+    parser.add_argument('-o', '--output', type=str, required=True, help="Output file to write URLs without the status message.")
+    parser.add_argument('-t', '--threads', type=int, default=10, help="Number of threads to use for concurrent processing.")
 
     args = parser.parse_args()
 
