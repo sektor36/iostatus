@@ -2,8 +2,11 @@ import re
 import argparse
 import sys
 import time
+import signal
 from concurrent.futures import ThreadPoolExecutor
 from playwright.sync_api import sync_playwright
+import os
+import sys
 
 def clean_url(url):
     return url.strip().strip('"').strip(',')
@@ -30,16 +33,23 @@ def check_status_with_playwright(url, expected_status_message, delay):
 
             return None  # Return None for invalid URLs
 
-    except Exception as e:
-        print(f"Error with {url}: {e}")
-        return None
+    except Exception:
+        return None  # Suppress all exceptions
 
 def extract_urls(input_data):
     """Extracts all URLs from the input data using regex."""
     url_pattern = r'(https?://[^\s]+|ftp://[^\s]+)'
     return re.findall(url_pattern, input_data)
 
+def handle_shutdown_signal(signal, frame):
+    """Handle shutdown on Ctrl + C."""
+    print("\nReceived shutdown signal (Ctrl + C). Exiting...")
+    os._exit(0)  # Forcefully exit the script without any further processing
+
 def main():
+    # Register the signal handler for SIGINT (Ctrl + C)
+    signal.signal(signal.SIGINT, handle_shutdown_signal)
+
     parser = argparse.ArgumentParser(description="Extract URLs and check for a specified status message in the body.")
     parser.add_argument('-sm', '--status_message', type=str, required=True, help="The status message to search for in the body (e.g., '404 Not Found')")
     parser.add_argument('-o', '--output', type=str, required=True, help="Output file to write valid URLs")
